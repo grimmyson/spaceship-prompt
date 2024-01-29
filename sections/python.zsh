@@ -23,16 +23,12 @@ SPACESHIP_PYTHON_COLOR="${SPACESHIP_PYTHON_COLOR="yellow"}"
 spaceship_python() {
   [[ $SPACESHIP_PYTHON_SHOW == false ]] && return
 
-  # Show python version only in directories with relevant files
-  local is_python_project="$(spaceship::upsearch requirements.txt Pipfile pyproject.toml)"
-  [[ -n "$is_python_project" || -n *.py(#qN^/) ]] || return
+  spaceship::exists python3 || return
 
-  local py_version
+  [[ -n *.py(#qN^/) ]] || return
 
-  if  [[ -n "$VIRTUAL_ENV" ]] || [[ $SPACESHIP_PYTHON_SHOW == always ]]; then
-    py_version=${(@)$(python -V 2>&1)[2]}
-  fi
-
+  # Extract python version
+  local py_version=$(python3 -V 2>&1 | spaceship::grep -oE '([0-9]+\.)([0-9]+\.)?([0-9]+)' | head -n 1)
   [[ -z $py_version ]] && return
 
   spaceship::section \
@@ -40,5 +36,5 @@ spaceship_python() {
     --prefix "$SPACESHIP_PYTHON_PREFIX" \
     --suffix "$SPACESHIP_PYTHON_SUFFIX" \
     --symbol "$SPACESHIP_PYTHON_SYMBOL" \
-    "$py_version"
+    "v$py_version"
 }
